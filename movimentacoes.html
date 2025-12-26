@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimentações - Sistema de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/movimentacoes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-warehouse"></i> Sistema de Estoque</h1>
+            <nav class="nav">
+                <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="produtos.html"><i class="fas fa-boxes"></i> Produtos</a>
+                <a href="movimentacoes.html" class="active"><i class="fas fa-exchange-alt"></i> Movimentações</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <!-- Formulário de Nova Movimentação -->
+            <div class="card formulario-card">
+                <h2><i class="fas fa-exchange-alt"></i> Nova Movimentação</h2>
+                
+                <!-- Informação do estoque atual -->
+                <div id="estoqueInfo" class="estoque-info">
+                    <i class="fas fa-box"></i>
+                    <strong>Estoque atual: </strong>
+                    <span id="estoqueAtual">0</span>
+                </div>
+                
+                <form id="movimentacaoForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="produto_id">Produto *</label>
+                            <div class="select-wrapper">
+                                <select id="produto_id" class="form-control" required>
+                                    <option value="">Selecione um produto...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo">Tipo *</label>
+                            <div class="select-wrapper">
+                                <select id="tipo" class="form-control" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="entrada">Entrada (Compra/Produção)</option>
+                                    <option value="saida">Saída (Uso/Consumo)</option>
+                                    <option value="venda">Venda</option>
+                                    <option value="uso">Uso Interno/Consumo</option>
+                                    <option value="avaria">Avarias/Perdas</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quantidade">Quantidade *</label>
+                            <input type="number" id="quantidade" class="form-control" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="operador">Operador *</label>
+                            <input type="text" id="operador" class="form-control" required placeholder="Nome do operador">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="observacao">Observação</label>
+                        <textarea id="observacao" class="form-control" rows="3" placeholder="Detalhes da movimentação..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Registrar Movimentação
+                        </button>
+                        <button type="button" id="btnLimpar" class="btn btn-secondary">
+                            <i class="fas fa-broom"></i> Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Histórico de Movimentações -->
+            <div class="card historico-card">
+                <div class="filters-header">
+                    <h2><i class="fas fa-history"></i> Histórico de Movimentações</h2>
+                </div>
+                
+                <div class="filters">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="filterProduto">Filtrar por Produto</label>
+                            <select id="filterProduto" class="form-control">
+                                <option value="">Todos os produtos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterTipo">Filtrar por Tipo</label>
+                            <select id="filterTipo" class="form-control">
+                                <option value="">Todos os tipos</option>
+                                <option value="entrada">Entrada</option>
+                                <option value="saida">Saída (Cliente)</option>
+                                <option value="venda">Venda</option>
+                                <option value="uso">Uso Interno</option>
+                                <option value="avaria">Avarias</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="filterDataInicio">Data Início</label>
+                            <input type="date" id="filterDataInicio" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterDataFim">Data Fim</label>
+                            <input type="date" id="filterDataFim" class="form-control">
+                        </div>
+                    </div>
+                    <button type="button" id="btnLimparFiltros" class="btn btn-secondary">
+                        <i class="fas fa-filter"></i> Limpar Filtros
+                    </button>
+                </div>
+
+                <!-- Container com barra de rolagem -->
+                <div class="table-scroll-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Produto</th>
+                                <th>Tipo</th>
+                                <th>Saldo</th>
+                                <th>Quantidade</th>
+                                <th>Operador</th>
+                                <th>Observação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movimentacoesTable">
+                            <tr>
+                                <td colspan="8" class="loading">
+                                    <i class="fas fa-spinner fa-spin"></i> Carregando movimentações...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Sistema de Estoque &copy; 2025</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/init.js"></script>
+    <script src="js/movimentacoes.js"></script>
+</body>
+</html>

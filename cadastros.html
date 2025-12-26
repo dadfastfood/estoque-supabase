@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastros - Sistema de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-warehouse"></i> Sistema de Estoque</h1>
+            <nav class="nav">
+                <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="produtos.html"><i class="fas fa-boxes"></i> Produtos</a>
+                <a href="movimentacoes.html"><i class="fas fa-exchange-alt"></i> Movimentações</a>
+                <a href="cadastros.html" class="active"><i class="fas fa-cogs"></i> Cadastros</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <h2><i class="fas fa-cogs"></i> Cadastros do Sistema</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="fornecedores">Fornecedores</button>
+                    <button class="tab-btn" data-tab="categorias">Categorias</button>
+                    <button class="tab-btn" data-tab="depositos">Depósitos</button>
+                </div>
+
+                <!-- Aba de Fornecedores -->
+                <div id="fornecedores" class="tab-content active">
+                    <h3><i class="fas fa-truck"></i> Cadastro de Fornecedores</h3>
+                    <form id="fornecedorForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fornecedorNome">Nome *</label>
+                                <input type="text" id="fornecedorNome" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="fornecedorCNPJ">CNPJ</label>
+                                <input type="text" id="fornecedorCNPJ" class="form-control" placeholder="00.000.000/0000-00">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fornecedorTelefone">Telefone</label>
+                                <input type="text" id="fornecedorTelefone" class="form-control" placeholder="(11) 99999-9999">
+                            </div>
+                            <div class="form-group">
+                                <label for="fornecedorEmail">Email</label>
+                                <input type="email" id="fornecedorEmail" class="form-control" placeholder="exemplo@email.com">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="fornecedorEndereco">Endereço</label>
+                            <textarea id="fornecedorEndereco" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar Fornecedor
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('fornecedorForm')">
+                                <i class="fas fa-times"></i> Limpar
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="table-container" style="margin-top: 2rem;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>CNPJ</th>
+                                    <th>Telefone</th>
+                                    <th>Email</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fornecedoresTable">
+                                <tr>
+                                    <td colspan="5" class="loading">Carregando fornecedores...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Aba de Categorias -->
+                <div id="categorias" class="tab-content">
+                    <h3><i class="fas fa-tags"></i> Cadastro de Categorias</h3>
+                    <form id="categoriaForm">
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="categoriaNome">Nome *</label>
+                                <input type="text" id="categoriaNome" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="flex: 2;">
+                                <label for="categoriaDescricao">Descrição</label>
+                                <input type="text" id="categoriaDescricao" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar Categoria
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('categoriaForm')">
+                                <i class="fas fa-times"></i> Limpar
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="table-container" style="margin-top: 2rem;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Descrição</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriasTable">
+                                <tr>
+                                    <td colspan="3" class="loading">Carregando categorias...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Aba de Depósitos -->
+                <div id="depositos" class="tab-content">
+                    <h3><i class="fas fa-warehouse"></i> Cadastro de Depósitos</h3>
+                    <form id="depositoForm">
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="depositoNome">Nome *</label>
+                                <input type="text" id="depositoNome" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="flex: 2;">
+                                <label for="depositoLocalizacao">Localização</label>
+                                <input type="text" id="depositoLocalizacao" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar Depósito
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm('depositoForm')">
+                                <i class="fas fa-times"></i> Limpar
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="table-container" style="margin-top: 2rem;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                   

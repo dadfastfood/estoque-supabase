@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fornecedores - Sistema de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .estado-select {
+            text-transform: uppercase;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .contact-header {
+            grid-column: 1 / -1;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Controle de Estoque</span>
+                </div>
+                <nav class="nav">
+                    <a href="index.html">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <a href="produtos.html">
+                        <i class="fas fa-boxes"></i> Produtos
+                    </a>
+                    <a href="movimentacoes.html">
+                        <i class="fas fa-exchange-alt"></i> Movimentações
+                    </a>
+                    <a href="fornecedores.html" class="active">
+                        <i class="fas fa-truck"></i> Fornecedores
+                    </a>
+                    <a href="categorias.html">
+                        <i class="fas fa-tags"></i> Categorias
+                    </a>
+                    <a href="depositos.html">
+                        <i class="fas fa-warehouse"></i> Depósitos
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1><i class="fas fa-truck"></i> Fornecedores</h1>
+                <div class="header-actions">
+                    <button id="btnExportar" class="btn btn-secondary">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulário de Cadastro -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-plus-circle"></i> Cadastrar Novo Fornecedor</h2>
+                </div>
+                <form id="fornecedorForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nome">Nome Fantasia *</label>
+                            <input type="text" id="nome" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="razao_social">Razão Social</label>
+                            <input type="text" id="razao_social" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="cnpj_cpf">CNPJ/CPF</label>
+                            <input type="text" id="cnpj_cpf" class="form-control" placeholder="00.000.000/0000-00 ou 000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label for="inscricao_estadual">Inscrição Estadual</label>
+                            <input type="text" id="inscricao_estadual" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="telefone">Telefone</label>
+                            <input type="text" id="telefone" class="form-control" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-control">
+                        </div>
+                        
+                        <!-- Dados de Endereço -->
+                        <div class="form-group">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" class="form-control" placeholder="00000-000">
+                        </div>
+                        <div class="form-group">
+                            <label for="endereco">Endereço</label>
+                            <input type="text" id="endereco" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="numero">Número</label>
+                            <input type="text" id="numero" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="estado">Estado</label>
+                            <select id="estado" class="form-control estado-select">
+                                <option value="">Selecione...</option>
+                                <option value="AC">AC</option>
+                                <option value="AL">AL</option>
+                                <option value="AP">AP</option>
+                                <option value="AM">AM</option>
+                                <option value="BA">BA</option>
+                                <option value="CE">CE</option>
+                                <option value="DF">DF</option>
+                                <option value="ES">ES</option>
+                                <option value="GO">GO</option>
+                                <option value="MA">MA</option>
+                                <option value="MT">MT</option>
+                                <option value="MS">MS</option>
+                                <option value="MG">MG</option>
+                                <option value="PA">PA</option>
+                                <option value="PB">PB</option>
+                                <option value="PR">PR</option>
+                                <option value="PE">PE</option>
+                                <option value="PI">PI</option>
+                                <option value="RJ">RJ</option>
+                                <option value="RN">RN</option>
+                                <option value="RS">RS</option>
+                                <option value="RO">RO</option>
+                                <option value="RR">RR</option>
+                                <option value="SC">SC</option>
+                                <option value="SP">SP</option>
+                                <option value="SE">SE</option>
+                                <option value="TO">TO</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Dados de Contato -->
+                        <div class="contact-grid">
+                            <div class="contact-header">
+                                <i class="fas fa-user"></i> Dados do Contato
+                            </div>
+                            <div class="form-group">
+                                <label for="contato_nome">Nome do Contato</label>
+                                <input type="text" id="contato_nome" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="contato_telefone">Telefone do Contato</label>
+                                <input type="text" id="contato_telefone" class="form-control" placeholder="(00) 00000-0000">
+                            </div>
+                            <div class="form-group">
+                                <label for="contato_email">Email do Contato</label>
+                                <input type="email" id="contato_email" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="observacoes">Observações</label>
+                            <textarea id="observacoes" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="ativo" checked>
+                                    Fornecedor Ativo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Fornecedor
+                        </button>
+                        <button type="button" id="btnLimpar" class="btn btn-secondary">
+                            <i class="fas fa-broom"></i> Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de Fornecedores -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-list"></i> Lista de Fornecedores</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar fornecedores..." class="form-control">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome/Razão Social</th>
+                                <th>CNPJ/CPF</th>
+                                <th>Telefone</th>
+                                <th>Email</th>
+                                <th>Cidade/Estado</th>
+                                <th>Contato</th>
+                                <th>Status</th>
+                                <th>Cadastro</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fornecedoresTable">
+                            <tr>
+                                <td colspan="9" class="loading">Carregando fornecedores...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Sistema de Estoque &copy; 2025</p>
+            <p>Criado por aiCia Soluções</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/init.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/fornecedores.js"></script>
+    <script src="js/cnpj-fornecedor.js"></script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - Sistema de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/produtos.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Controle de Estoque</span>
+                </div>
+                <!--<button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                -->
+                <nav class="nav">
+                    <a href="index.html">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <a href="produtos.html" class="active">
+                        <i class="fas fa-boxes"></i> Produtos
+                    </a>
+                    <a href="movimentacoes.html">
+                        <i class="fas fa-exchange-alt"></i> Movimentações
+                    </a>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle">
+                            <i class="fas fa-plus-circle"></i> Cadastros
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="fornecedores.html"><i class="fas fa-truck"></i> Fornecedores</a>
+                            <a href="categorias.html"><i class="fas fa-tags"></i> Categorias</a>
+                            <a href="depositos.html"><i class="fas fa-warehouse"></i> Depósitos</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>
+                    <i class="fas fa-boxes"></i> Produtos
+                </h1>
+                <div class="header-actions">
+                    <button id="btnNovoProduto" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Novo Produto
+                    </button>
+                    <button id="btnImportar" class="btn btn-secondary">
+                        <i class="fas fa-file-import"></i> Importar
+                    </button>
+                    <button id="btnExportar" class="btn btn-success">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab active" data-tab="lista">
+                        <i class="fas fa-list"></i> Lista de Produtos
+                    </button>
+                    <button class="tab" data-tab="cards">
+                        <i class="fas fa-th-large"></i> Visualização em Cards
+                    </button>
+                    <button class="tab" data-tab="categorias">
+                        <i class="fas fa-tags"></i> Por Categoria
+                    </button>
+                </div>
+                
+                <!-- Tab Content: Lista -->
+                <div class="tab-content active" id="tab-lista">
+                    <!-- Filtros -->
+                    <div class="card">
+                        <div class="filters">
+                            <div class="filters-grid">
+                                <div class="filter-group">
+                                    <label for="filtroBusca">Buscar</label>
+                                    <div class="search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="filtroBusca" placeholder="Nome, código ou código de barras..." class="form-control">
+                                    </div>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filtroCategoria">Categoria</label>
+                                    <select id="filtroCategoria" class="form-control">
+                                        <option value="">Todas as categorias</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filtroFornecedor">Fornecedor</label>
+                                    <select id="filtroFornecedor" class="form-control">
+                                        <option value="">Todos os fornecedores</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filtroDeposito">Depósito</label>
+                                    <select id="filtroDeposito" class="form-control">
+                                        <option value="">Todos os depósitos</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filtroStatus">Status</label>
+                                    <select id="filtroStatus" class="form-control">
+                                        <option value="">Todos</option>
+                                        <option value="ativo">Ativos</option>
+                                        <option value="inativo">Inativos</option>
+                                        <option value="baixo">Baixo Estoque</option>
+                                        <option value="esgotado">Esgotados</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="filter-actions">
+                                <button id="btnAplicarFiltros" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i> Aplicar Filtros
+                                </button>
+                                <button id="btnLimparFiltros" class="btn btn-secondary">
+                                    <i class="fas fa-broom"></i> Limpar
+                                </button>
+                                <button id="btnAvancado" class="btn btn-outline">
+                                    <i class="fas fa-cog"></i> Avançado
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Produtos -->
+                    <div class="card">
+                        <div class="table-controls">
+                            <div class="table-info">
+                                <span id="totalRegistros">0 produtos encontrados</span>
+                            </div>
+                            <div class="table-actions">
+                                <button id="btnSelecionarTodos" class="btn btn-sm">
+                                    <i class="fas fa-check-square"></i> Selecionar Todos
+                                </button>
+                                <button id="btnAcoesEmMassa" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-tasks"></i> Ações em Massa
+                                </button>
+                                <div class="pagination">
+                                    <button id="btnAnterior" class="btn btn-sm" disabled>
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <span id="paginaAtual">Página 1</span>
+                                    <button id="btnProximo" class="btn btn-sm" disabled>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th width="50">
+                                            <input type="checkbox" id="checkAll">
+                                        </th>
+                                        <th>Código</th>
+                                        <th>Produto</th>
+                                        <th>Categoria</th>
+                                        <th>Unidade</th>
+                                        <th>Estoque Atual</th>
+                                        <th>Estoque Mín.</th>
+                                        <th>Preço Custo</th>
+                                        <th>Preço Venda</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="produtosTable">
+                                    <tr>
+                                        <td colspan="11" class="loading">
+                                            Carregando produtos...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Cards -->
+                <div class="tab-content" id="tab-cards">
+                    <div class="cards-grid" id="produtosCards">
+                        <div class="loading">Carregando produtos...</div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Categorias -->
+                <div class="tab-content" id="tab-categorias">
+                    <div class="card">
+                        <div class="categorias-container">
+                            <div class="categorias-sidebar">
+                                <div class="categorias-list" id="categoriasList">
+                                    <!-- Lista de categorias será carregada aqui -->
+                                </div>
+                                <button id="btnNovaCategoria" class="btn btn-primary btn-block">
+                                    <i class="fas fa-plus"></i> Nova Categoria
+                                </button>
+                            </div>
+                            <div class="categorias-content">
+                                <div id="categoriaProdutos">
+                                    <div class="empty-state">
+                                        <i class="fas fa-tag"></i>
+                                        <p>Selecione uma categoria para ver os produtos</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Sistema de Estoque &copy; 2025</p>
+        </footer>
+    </div>
+
+    <!-- Modal de Produto -->
+    <div id="produtoModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-box"></i> <span id="modalTitulo">Novo Produto</span></h3>
+                <button class="btn btn-sm" onclick="closeModal('produtoModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="produtoForm">
+                    <input type="hidden" id="produtoId">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nome">Nome do Produto *</label>
+                            <input type="text" id="nome" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo">Código Interno</label>
+                            <input type="text" id="codigo" class="form-control">
+                            <small class="text-muted">Código único para identificação interna</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo_barras">Código de Barras (EAN/UPC)</label>
+                            <div class="input-group">
+                                <input type="text" id="codigo_barras" class="form-control">
+                                <button type="button" class="btn btn-secondary" onclick="scanBarcode('codigo_barras')">
+                                    <i class="fas fa-barcode"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Escaneie ou digite o código de barras</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="unidade_medida">Unidade de Medida *</label>
+                            <select id="unidade_medida" class="form-control" required>
+                                <option value="">Selecione...</option>
+                                <option value="unidade">Unidade</option>
+                                <option value="kg">Quilograma (kg)</option>
+                                <option value="g">Grama (g)</option>
+                                <option value="litro">Litro (L)</option>
+                                <option value="ml">Mililitro (mL)</option>
+                                <option value="metro">Metro (m)</option>
+                                <option value="cm">Centímetro (cm)</option>
+                                <option value="caixa">Caixa</option>
+                                <option value="pacote">Pacote</option>
+                                <option value="fardo">Fardo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoria_id">Categoria</label>
+                            <select id="categoria_id" class="form-control">
+                                <option value="">Sem categoria</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fornecedor_id">Fornecedor Principal</label>
+                            <select id="fornecedor_id" class="form-control">
+                                <option value="">Sem fornecedor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="deposito_id">Depósito Padrão</label>
+                            <select id="deposito_id" class="form-control">
+                                <option value="">Sem depósito</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="estoque_minimo">Estoque Mínimo</label>
+                            <input type="number" id="estoque_minimo" class="form-control" 
+                                   min="0" step="0.001" value="0">
+                            <small class="text-muted">Quantidade mínima para alerta de reposição</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="estoque_maximo">Estoque Máximo</label>
+                            <input type="number" id="estoque_maximo" class="form-control" 
+                                   min="0" step="0.001">
+                            <small class="text-muted">Quantidade máxima recomendada</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="preco_custo">Preço de Custo (R$)</label>
+                            <input type="number" id="preco_custo" class="form-control" 
+                                   min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="preco_venda">Preço de Venda (R$)</label>
+                            <input type="number" id="preco_venda" class="form-control" 
+                                   min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="margem_lucro">Margem de Lucro (%)</label>
+                            <input type="number" id="margem_lucro" class="form-control" 
+                                   min="0" step="0.01" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="peso">Peso (kg)</label>
+                            <input type="number" id="peso" class="form-control" 
+                                   min="0" step="0.001">
+                        </div>
+                        <div class="form-group">
+                            <label for="volume">Volume (m³)</label>
+                            <input type="number" id="volume" class="form-control" 
+                                   min="0" step="0.001">
+                        </div>
+                        <div class="form-group span-2">
+                            <label for="descricao">Descrição Detalhada</label>
+                            <textarea id="descricao" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="form-group span-2">
+                            <label for="observacoes">Observações</label>
+                            <textarea id="observacoes" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="ativo" checked>
+                                    Produto Ativo
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="controla_estoque" checked>
+                                    Controlar Estoque
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnSalvarProduto" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Salvar Produto
+                </button>
+                <button onclick="closeModal('produtoModal')" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Categoria -->
+    <div id="categoriaModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-tag"></i> <span id="categoriaModalTitulo">Nova Categoria</span></h3>
+                <button class="btn btn-sm" onclick="closeModal('categoriaModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="categoriaForm">
+                    <input type="hidden" id="categoriaId">
+                    
+                    <div class="form-group">
+                        <label for="categoriaNome">Nome da Categoria *</label>
+                        <input type="text" id="categoriaNome" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoriaPai">Categoria Pai</label>
+                        <select id="categoriaPai" class="form-control">
+                            <option value="">Nenhuma (Categoria Raiz)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoriaDescricao">Descrição</label>
+                        <textarea id="categoriaDescricao" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoriaCor">Cor de Identificação</label>
+                        <div class="color-picker">
+                            <input type="color" id="categoriaCor" value="#3b82f6">
+                            <input type="text" id="categoriaCorHex" class="form-control" value="#3b82f6" 
+                                   style="margin-left: 10px; width: 100px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="categoriaAtiva" checked>
+                                Categoria Ativa
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btnSalvarCategoria" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Salvar Categoria
+                </button>
+                <button onclick="closeModal('categoriaModal')" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ações em Massa -->
+    <div id="acoesMassaModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-tasks"></i> Ações em Massa</h3>
+                <button class="btn btn-sm" onclick="closeModal('acoesMassaModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Ação a ser executada</label>
+                    <select id="acaoMassa" class="form-control">
+                        <option value="">Selecione uma ação...</option>
+                        <option value="ativar">Ativar produtos selecionados</option>
+                        <option value="inativar">Inativar produtos selecionados</option>
+                        <option value="excluir">Excluir produtos selecionados</option>
+                        <option value="alterar_categoria">Alterar categoria</option>
+                        <option value="alterar_fornecedor">Alterar fornecedor</option>
+                        <option value="alterar_deposito">Alterar depósito</option>
+                        <option value="exportar_selecionados">Exportar produtos selecionados</option>
+                    </select>
+                </div>
+                <div id="acaoMassaDetalhes" style="display: none;">
+                    <!-- Detalhes específicos de cada ação aparecerão aqui -->
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle"></i>
+                    Esta ação será aplicada a <span id="quantidadeSelecionados">0</span> produto(s) selecionado(s).
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnExecutarAcaoMassa" class="btn btn-primary" disabled>
+                    <i class="fas fa-play"></i> Executar Ação
+                </button>
+                <button onclick="closeModal('acoesMassaModal')" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/init.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/produtos.js"></script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depósitos - Sistema de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .estado-select {
+            text-transform: uppercase;
+        }
+        
+        .capacity-input {
+            position: relative;
+        }
+        
+        .capacity-input .form-control {
+            padding-right: 100px;
+        }
+        
+        .capacity-unit {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 0.875rem;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Controle de Estoque</span>
+                </div>
+                <nav class="nav">
+                    <a href="index.html">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <a href="produtos.html">
+                        <i class="fas fa-boxes"></i> Produtos
+                    </a>
+                    <a href="movimentacoes.html">
+                        <i class="fas fa-exchange-alt"></i> Movimentações
+                    </a>
+                    <a href="fornecedores.html">
+                        <i class="fas fa-truck"></i> Fornecedores
+                    </a>
+                    <a href="categorias.html">
+                        <i class="fas fa-tags"></i> Categorias
+                    </a>
+                    <a href="depositos.html" class="active">
+                        <i class="fas fa-warehouse"></i> Depósitos
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1><i class="fas fa-warehouse"></i> Depósitos</h1>
+                <div class="header-actions">
+                    <button id="btnExportar" class="btn btn-secondary">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulário de Cadastro -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-plus-circle"></i> Cadastrar Novo Depósito</h2>
+                </div>
+                <form id="depositoForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nome">Nome do Depósito *</label>
+                            <input type="text" id="nome" class="form-control" required placeholder="Ex: Depósito Central">
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo">Código</label>
+                            <div class="input-group">
+                                <input type="text" id="codigo" class="form-control" placeholder="Ex: DEP001">
+                                <button type="button" id="btnGerarCodigo" class="btn btn-secondary">
+                                    <i class="fas fa-sync"></i> Gerar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="responsavel">Responsável</label>
+                            <input type="text" id="responsavel" class="form-control" placeholder="Nome do responsável">
+                        </div>
+                        <div class="form-group">
+                            <label for="telefone">Telefone</label>
+                            <input type="text" id="telefone" class="form-control" placeholder="(00) 00000-0000">
+                        </div>
+                        
+                        <!-- Dados de Endereço -->
+                        <div class="form-group">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" class="form-control" placeholder="00000-000">
+                        </div>
+                        <div class="form-group">
+                            <label for="endereco">Endereço</label>
+                            <input type="text" id="endereco" class="form-control" placeholder="Rua, Avenida, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label for="numero">Número</label>
+                            <input type="text" id="numero" class="form-control" placeholder="Nº">
+                        </div>
+                        <div class="form-group">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento" class="form-control" placeholder="Sala, Andar, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="estado">Estado</label>
+                            <select id="estado" class="form-control estado-select">
+                                <option value="">Selecione...</option>
+                                <option value="AC">AC</option>
+                                <option value="AL">AL</option>
+                                <option value="AP">AP</option>
+                                <option value="AM">AM</option>
+                                <option value="BA">BA</option>
+                                <option value="CE">CE</option>
+                                <option value="DF">DF</option>
+                                <option value="ES">ES</option>
+                                <option value="GO">GO</option>
+                                <option value="MA">MA</option>
+                                <option value="MT">MT</option>
+                                <option value="MS">MS</option>
+                                <option value="MG">MG</option>
+                                <option value="PA">PA</option>
+                                <option value="PB">PB</option>
+                                <option value="PR">PR</option>
+                                <option value="PE">PE</option>
+                                <option value="PI">PI</option>
+                                <option value="RJ">RJ</option>
+                                <option value="RN">RN</option>
+                                <option value="RS">RS</option>
+                                <option value="RO">RO</option>
+                                <option value="RR">RR</option>
+                                <option value="SC">SC</option>
+                                <option value="SP">SP</option>
+                                <option value="SE">SE</option>
+                                <option value="TO">TO</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="capacidade">Capacidade</label>
+                            <div class="capacity-input">
+                                <input type="text" id="capacidade" class="form-control" placeholder="Ex: 1000 kg, 50 paletes">
+                                <span class="capacity-unit">Volume/Peso</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="observacoes">Observações</label>
+                            <textarea id="observacoes" class="form-control" rows="3" placeholder="Informações adicionais..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="ativo" checked>
+                                    Depósito Ativo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Depósito
+                        </button>
+                        <button type="button" id="btnLimpar" class="btn btn-secondary">
+                            <i class="fas fa-broom"></i> Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de Depósitos -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-list"></i> Lista de Depósitos</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar depósitos..." class="form-control">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome/Código</th>
+                                <th>Responsável</th>
+                                <th>Telefone</th>
+                                <th>Endereço</th>
+                                <th>Cidade/Estado</th>
+                                <th>Capacidade</th>
+                                <th>Status</th>
+                                <th>Cadastro</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="depositosTable">
+                            <tr>
+                                <td colspan="9" class="loading">Carregando depósitos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Sistema de Estoque &copy; 2025</p>
+            <p>Criado por aiCia Soluções</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/init.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/depositos.js"></script>
+</body>
+</html>

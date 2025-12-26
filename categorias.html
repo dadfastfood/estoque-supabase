@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorias - Sistema de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .color-picker input[type="color"] {
+            width: 50px;
+            height: 40px;
+            padding: 2px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .color-badge {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+            vertical-align: middle;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .hierarchy-indent {
+            display: inline-block;
+            width: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Controle de Estoque</span>
+                </div>
+                <nav class="nav">
+                    <a href="index.html">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <a href="produtos.html">
+                        <i class="fas fa-boxes"></i> Produtos
+                    </a>
+                    <a href="movimentacoes.html">
+                        <i class="fas fa-exchange-alt"></i> Movimentações
+                    </a>
+                    <a href="fornecedores.html">
+                        <i class="fas fa-truck"></i> Fornecedores
+                    </a>
+                    <a href="categorias.html" class="active">
+                        <i class="fas fa-tags"></i> Categorias
+                    </a>
+                    <a href="depositos.html">
+                        <i class="fas fa-warehouse"></i> Depósitos
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1><i class="fas fa-tags"></i> Categorias</h1>
+                <div class="header-actions">
+                    <button id="btnExportar" class="btn btn-secondary">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulário de Cadastro -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-plus-circle"></i> Cadastrar Nova Categoria</h2>
+                </div>
+                <form id="categoriaForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nome">Nome da Categoria *</label>
+                            <input type="text" id="nome" class="form-control" required placeholder="Ex: Eletrônicos, Alimentos, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label for="descricao">Descrição</label>
+                            <textarea id="descricao" class="form-control" rows="3" placeholder="Descrição detalhada da categoria..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="cor">Cor</label>
+                            <div class="color-picker">
+                                <input type="color" id="cor" class="form-control" value="#3b82f6">
+                                <input type="text" id="corText" class="form-control" value="#3b82f6" placeholder="#3b82f6">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="parent_id">Categoria Pai</label>
+                            <select id="parent_id" class="form-control">
+                                <option value="">Nenhuma (categoria raiz)</option>
+                                <!-- As opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ordem">Ordem</label>
+                            <input type="number" id="ordem" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="ativo" checked>
+                                    Categoria Ativa
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Salvar Categoria
+                        </button>
+                        <button type="button" id="btnLimpar" class="btn btn-secondary">
+                            <i class="fas fa-broom"></i> Limpar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de Categorias -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-list"></i> Lista de Categorias</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar categorias..." class="form-control">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome/Descrição</th>
+                                <th>Cor</th>
+                                <th>Ordem</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriasTable">
+                            <tr>
+                                <td colspan="5" class="loading">Carregando categorias...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Sistema de Estoque &copy; 2025</p>
+            <p>Criado por aiCia Soluções</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/init.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/categorias.js"></script>
+
+    <script>
+        // Configuração do color picker no formulário principal
+        document.addEventListener('DOMContentLoaded', function() {
+            const corInput = document.getElementById('cor');
+            const corTextInput = document.getElementById('corText');
+            
+            if (corInput && corTextInput) {
+                corInput.addEventListener('input', function(e) {
+                    corTextInput.value = e.target.value;
+                });
+                
+                corTextInput.addEventListener('input', function(e) {
+                    if (e.target.value.match(/^#[0-9A-F]{6}$/i)) {
+                        corInput.value = e.target.value;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

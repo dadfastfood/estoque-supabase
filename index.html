@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Controle de Estoque</span>
+                </div>
+                <nav class="nav">
+                    <a href="index.html" class="active">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <a href="produtos.html">
+                        <i class="fas fa-boxes"></i> Produtos
+                    </a>
+                    <a href="movimentacoes.html">
+                        <i class="fas fa-exchange-alt"></i> Movimentações
+                    </a>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle">
+                            <i class="fas fa-plus-circle"></i> Cadastros
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="fornecedores.html"><i class="fas fa-truck"></i> Fornecedores</a>
+                            <a href="categorias.html"><i class="fas fa-tags"></i> Categorias</a>
+                            <a href="depositos.html"><i class="fas fa-warehouse"></i> Depósitos</a>
+                        </div>
+                    </div>
+                    <a href="#" id="btnRelatorios">
+                        <i class="fas fa-chart-bar"></i> Relatórios
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <small id="current-time" class="text-muted"></small>
+                </h1>
+                <div class="header-actions">
+                    <div class="operator-info">
+                        <i class="fas fa-user"></i>
+                        <span id="operador-atual">Operador: Não identificado</span>
+                    </div>
+                    <button id="btnAtualizar" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="card stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-value" id="total-produtos">0</div>
+                    <div class="stat-label">Total de Produtos</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-arrow-up text-success"></i>
+                        <span class="text-success">+5%</span>
+                    </div>
+                </div>
+
+                <div class="card stat-card success-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-value" id="valor-total">R$ 0,00</div>
+                    <div class="stat-label">Valor em Estoque</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12%</span>
+                    </div>
+                </div>
+
+                <div class="card stat-card warning-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-value" id="baixo-estoque">0</div>
+                    <div class="stat-label">Baixo Estoque</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-arrow-up text-warning"></i>
+                        <span class="text-warning">+3</span>
+                    </div>
+                </div>
+
+                <div class="card stat-card info-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stat-value" id="mov-hoje">0</div>
+                    <div class="stat-label">Movimentações Hoje</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+8%</span>
+                    </div>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="stat-value" id="total-fornecedores">0</div>
+                    <div class="stat-label">Fornecedores</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-minus"></i>
+                        <span class="text-muted">0%</span>
+                    </div>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-value" id="produtos-ativos">0</div>
+                    <div class="stat-label">Produtos Ativos</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-arrow-up text-success"></i>
+                        <span class="text-success">+2%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Alertas e Baixo Estoque -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-exclamation-triangle text-warning"></i> Produtos com Baixo Estoque</h2>
+                        <a href="produtos.html?filter=lowstock" class="btn btn-sm btn-outline">
+                            Ver Todos
+                        </a>
+                    </div>
+                    <div class="list-container" id="low-stock-list">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- Últimas Movimentações -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history text-info"></i> Últimas Movimentações</h2>
+                        <a href="movimentacoes.html" class="btn btn-sm btn-outline">
+                            Ver Todas
+                        </a>
+                    </div>
+                    <div class="list-container" id="recent-movements">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Distribuição por Tipo -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-pie text-primary"></i> Estoque por Tipo</h2>
+                        <div class="chart-legend">
+                            <span class="legend-item"><span class="legend-color" style="background-color: #10b981;"></span> Unidades</span>
+                            <span class="legend-item"><span class="legend-color" style="background-color: #3b82f6;"></span> Quilogramas</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="stockTypeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Valor em Estoque -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-bar text-success"></i> Top Produtos por Valor</h2>
+                        <select id="chartPeriod" class="form-control form-control-sm" style="width: auto;">
+                            <option value="7">Últimos 7 dias</option>
+                            <option value="30" selected>Últimos 30 dias</option>
+                            <option value="90">Últimos 90 dias</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="stockValueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-bolt text-warning"></i> Ações Rápidas</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="produtos.html?action=new" class="quick-action" data-action="new-product">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Novo Produto</span>
+                    </a>
+                    <a href="movimentacoes.html?action=new" class="quick-action" data-action="new-movement">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Nova Movimentação</span>
+                    </a>
+                    <a href="fornecedores.html?action=new" class="quick-action" data-action="new-supplier">
+                        <i class="fas fa-truck"></i>
+                        <span>Novo Fornecedor</span>
+                    </a>
+                    <a href="#" class="quick-action" data-action="reports" id="btnQuickReports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Gerar Relatório</span>
+                    </a>
+                    <a href="#" class="quick-action" data-action="inventory" id="btnInventoryCheck">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Contagem de Estoque</span>
+                    </a>
+                    <a href="#" class="quick-action" data-action="export" id="btnExportData">
+                        <i class="fas fa-file-export"></i>
+                        <span>Exportar Dados</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Informações do Sistema -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-info-circle text-info"></i> Informações do Sistema</h2>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-database"></i>
+                            <span>Última Atualização</span>
+                        </div>
+                        <div class="info-value" id="last-update">--:--</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-box"></i>
+                            <span>Produtos Cadastrados</span>
+                        </div>
+                        <div class="info-value" id="total-products-detail">0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Valor Total Estoque</span>
+                        </div>
+                        <div class="info-value" id="total-value-detail">R$ 0,00</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Movimentações 30 Dias</span>
+                        </div>
+                        <div class="info-value" id="mov-30-days">0</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Sistema de Estoque</h4>
+                    <p>Controle completo de estoque, movimentações e cadastros</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Versão</h4>
+                    <p>v1.0.0</p>
+                    <p id="system-status" class="status-active">
+                        <i class="fas fa-circle"></i> Sistema Online
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <p>hchiarllecosta@gmail.com</p>
+                    <p>(91) 98013-3219</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Sistema de Estoque. Todos os direitos reservados.</p>
+                <p>Criado por aiCia Soluções</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal do Operador -->
+    <div id="operadorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> Identificação do Operador</h3>
+            </div>
+            <div class="modal-body">
+                <p>Por favor, informe seu nome para registrar as movimentações:</p>
+                <div class="form-group">
+                    <label for="operadorNome">Nome do Operador *</label>
+                    <input type="text" id="operadorNome" class="form-control" 
+                           placeholder="Digite seu nome completo" required>
+                </div>
+                <div class="form-group">
+                    <label for="operadorSetor">Setor</label>
+                    <select id="operadorSetor" class="form-control">
+                        <option value="">Selecione o setor</option>
+                        <option value="almoxarifado">Almoxarifado</option>
+                        <option value="producao">Produção</option>
+                        <option value="vendas">Vendas</option>
+                        <option value="compras">Compras</option>
+                        <option value="administrativo">Administrativo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnConfirmarOperador" class="btn btn-primary">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Relatórios -->
+    <div id="relatoriosModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-chart-bar"></i> Gerar Relatório</h3>
+                <button class="btn btn-sm" onclick="closeModal('relatoriosModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="relatorioTipo">Tipo de Relatório</label>
+                    <select id="relatorioTipo" class="form-control">
+                        <option value="estoque">Estoque Atual</option>
+                        <option value="movimentacoes">Movimentações</option>
+                        <option value="produtos">Produtos</option>
+                        <option value="fornecedores">Fornecedores</option>
+                        <option value="baixo_estoque">Baixo Estoque</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="relatorioDataInicio">Data Início</label>
+                        <input type="date" id="relatorioDataInicio" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="relatorioDataFim">Data Fim</label>
+                        <input type="date" id="relatorioDataFim" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="relatorioFormato">Formato</label>
+                    <select id="relatorioFormato" class="form-control">
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel</option>
+                        <option value="csv">CSV</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGerarRelatorio" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Gerar Relatório
+                </button>
+                <button onclick="closeModal('relatoriosModal')" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- No final do body do index.html -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/init.js"></script>
+    <script src="js/utils.js"></script> <!-- utils.js deve vir ANTES do dashboard.js -->
+    <script src="js/dashboard.js"></script>
+
+    <script>
+        // Configuração de estilos dinâmicos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Estilos adicionais
+            const additionalStyles = `
+                .dropdown {
+                    position: relative;
+                    display: inline-block;
+                }
+                
+                .dropdown-toggle {
+                    cursor: pointer;
+                }
+                
+                .dropdown-menu {
+                    display: none;
+                    position: absolute;
+                    background: white;
+                    min-width: 200px;
+                    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+                    border-radius: 8px;
+                    z-index: 1000;
+                    top: 100%;
+                    left: 0;
+                    overflow: hidden;
+                }
+                
+                .dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+                
+                .dropdown-menu a {
+                    display: block;
+                    padding: 0.75rem 1rem;
+                    color: #333;
+                    text-decoration: none;
+                    border-bottom: 1px solid #f0f0f0;
+                }
+                
+                .dropdown-menu a:hover {
+                    background: #f5f5f5;
+                }
+                
+                .dropdown-menu a i {
+                    width: 20px;
+                    text-align: center;
+                    margin-right: 8px;
+                }
+                
+                .header-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+                
+                .operator-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: rgba(255,255,255,0.1);
+                    padding: 0.5rem 1rem;
+                    border-radius: 20px;
+                    color: white;
+                }
+                
+                .operator-info i {
+                    font-size: 0.9rem;
+                }
+                
+                .stat-trend {
+                    font-size: 0.8rem;
+                    margin-top: 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+                
+                .text-success {
+                    color: #10b981;
+                }
+                
+                .text-warning {
+                    color: #f59e0b;
+                }
+                
+                .text-muted {
+                    color: #6b7280;
+                }
+                
+                .chart-legend {
+                    display: flex;
+                    gap: 1rem;
+                    font-size: 0.875rem;
+                }
+                
+                .legend-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                
+                .legend-color {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                }
+                
+                .info-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 1.5rem;
+                }
+                
+                .info-item {
+                    background: #f8fafc;
+                    padding: 1rem;
+                    border-radius: 8px;
+                }
+                
+                .info-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 0.5rem;
+                    color: #4b5563;
+                    font-size: 0.875rem;
+                }
+                
+                .info-value {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: #1f2937;
+                }
+                
+                .footer-content {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 2rem;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .footer-section h4 {
+                    color: white;
+                    margin-bottom: 1rem;
+                    font-size: 1.1rem;
+                }
+                
+                .footer-section p {
+                    color: #d1d5db;
+                    margin-bottom: 0.5rem;
+                    font-size: 0.9rem;
+                }
+                
+                .footer-bottom {
+                    border-top: 1px solid #374151;
+                    padding-top: 1rem;
+                    text-align: center;
+                }
+                
+                .status-active {
+                    color: #10b981;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                
+                .status-active i {
+                    font-size: 0.5rem;
+                }
+                
+                .input-group {
+                    display: flex;
+                }
+                
+                .input-group .form-control {
+                    border-top-right-radius: 0;
+                    border-bottom-right-radius: 0;
+                }
+                
+                .input-group .btn {
+                    border-top-left-radius: 0;
+                    border-bottom-left-radius: 0;
+                    border-left: none;
+                }
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = additionalStyles;
+            document.head.appendChild(style);
+            
+            // Verifica operador
+            checkOperador();
+            
+            // Configura botões
+            document.getElementById('btnAtualizar').addEventListener('click', async () => {
+                await loadDashboardData();
+                showNotification('Dashboard atualizado com sucesso!', 'success');
+            });
+            
+            document.getElementById('btnRelatorios').addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal('relatoriosModal');
+            });
+            
+            document.getElementById('btnQuickReports').addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal('relatoriosModal');
+            });
+            
+            document.getElementById('btnGerarRelatorio').addEventListener('click', () => {
+                gerarRelatorio();
+            });
+            
+            document.getElementById('btnConfirmarOperador').addEventListener('click', salvarOperador);
+        });
+        
+        function checkOperador() {
+            const operador = sessionStorage.getItem('operador_nome');
+            if (!operador) {
+                openModal('operadorModal');
+            } else {
+                const setor = sessionStorage.getItem('operador_setor') || 'Não informado';
+                document.getElementById('operador-atual').textContent = 
+                    `Operador: ${operador} (${setor})`;
+            }
+        }
+        
+        function salvarOperador() {
+            const nome = document.getElementById('operadorNome').value.trim();
+            const setor = document.getElementById('operadorSetor').value;
+            
+            if (!nome) {
+                showNotification('Por favor, informe seu nome', 'warning');
+                return;
+            }
+            
+            sessionStorage.setItem('operador_nome', nome);
+            if (setor) {
+                sessionStorage.setItem('operador_setor', setor);
+            }
+            
+            document.getElementById('operador-atual').textContent = 
+                `Operador: ${nome} (${setor || 'Não informado'})`;
+            
+            closeModal('operadorModal');
+            showNotification(`Bem-vindo, ${nome}!`, 'success');
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        function gerarRelatorio() {
+            const tipo = document.getElementById('relatorioTipo').value;
+            const inicio = document.getElementById('relatorioDataInicio').value;
+            const fim = document.getElementById('relatorioDataFim').value;
+            const formato = document.getElementById('relatorioFormato').value;
+            
+            showNotification(`Gerando relatório ${tipo}...`, 'info');
+            closeModal('relatoriosModal');
+            
+            // Simulação de geração de relatório
+            setTimeout(() => {
+                showNotification('Relatório gerado com sucesso!', 'success');
+                // Em uma implementação real, aqui faríamos o download
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
