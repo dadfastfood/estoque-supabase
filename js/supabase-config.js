@@ -1,0 +1,1 @@
+console.log('Supabase configurado via init.js');
