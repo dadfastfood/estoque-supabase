@@ -1,0 +1,291 @@
+/* Estilos específicos para a página de movimentações de estoque */
+
+/* Layout de duas colunas para formulário e histórico */
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+/* Formulário de nova movimentação */
+.formulario-card {
+    grid-column: 1;
+    height: fit-content;
+    position: sticky;
+    top: 30px;
+}
+
+/* Histórico de movimentações */
+.historico-card {
+    grid-column: 2;
+    min-height: 600px;
+}
+
+/* Informação de estoque atual */
+.estoque-info {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: none;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.estoque-info i {
+    margin-right: 10px;
+}
+
+/* Filtros */
+.filters {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #eef2f7;
+}
+
+.filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.filters-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Container da tabela com barra de rolagem */
+.table-scroll-container {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: 10px;
+    border: 1px solid #eef2f7;
+    position: relative;
+}
+
+/* Estilização da barra de rolagem */
+.table-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #5a67d8;
+}
+
+/* Tabela de dados */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    min-width: 900px;
+}
+
+.data-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 2px solid #5a67d8;
+}
+
+.data-table td {
+    padding: 16px;
+    border-bottom: 1px solid #eef2f7;
+    color: #333;
+    transition: background-color 0.2s ease;
+}
+
+.data-table tr:hover {
+    background: #f8fafc;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Estados vazios e carregamento */
+.empty-state {
+    text-align: center;
+    padding: 40px !important;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #dee2e6;
+}
+
+.loading {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 30px;
+}
+
+/* Badges específicos para tipos de movimentação */
+.badge-entrada {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border: 1px solid #b1dfbb;
+}
+
+.badge-saida {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+    border: 1px solid #f1b0b7;
+}
+
+.badge-venda {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.badge-uso {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    color: #0c5460;
+    border: 1px solid #abdde5;
+}
+
+.badge-avaria {
+    background: linear-gradient(135deg, #343a40 0%, #23272b 100%);
+    color: white;
+    border: 1px solid #454d55;
+}
+
+/* Badge de unidade de medida */
+.unit-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 8px;
+    font-weight: 500;
+}
+
+/* Botões de ação */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Indicador de saldo */
+.saldo-indicator {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Informações adicionais na tabela */
+.produto-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.produto-nome {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.produto-estoque {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* Barra de progresso para visualização de estoque */
+.estoque-progress {
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.estoque-progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.estoque-progress-bar.alto {
+    background: linear-gradient(135deg, #4cd964 0%, #5ac8fa 100%);
+}
+
+.estoque-progress-bar.medio {
+    background: linear-gradient(135deg, #ffcc00 0%, #ff9500 100%);
+}
+
+.estoque-progress-bar.baixo {
+    background: linear-gradient(135deg, #ff2d55 0%, #ff9500 100%);
+}
+
+/* Layout responsivo */
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .formulario-card,
+    .historico-card {
+        grid-column: 1;
+    }
+    
+    .formulario-card {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-scroll-container {
+        max-height: 400px;
+    }
+    
+    .data-table {
+        min-width: 700px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .badge {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+}

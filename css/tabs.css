@@ -1,0 +1,84 @@
+.tabs-container {
+    margin-bottom: 2rem;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+
+.tab {
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-color);
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--light-color);
+}
+
+.tab.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.tab i {
+    font-size: 1.2rem;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Tab panels */
+.tab-panel {
+    padding: 1.5rem;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    border: 1px solid var(--border-color);
+    border-top: none;
+}
+
+/* Tab navigation with icons */
+.tab-nav {
+    display: flex;
+    gap: 0;
+    background: var(--light-color);
+    border-radius: 10px 10px 0 0;
+    padding: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tab-nav .tab {
+    border-radius: 8px;
+    margin: 0.25rem;
+    border-bottom: none;
+}
+
+.tab-nav .tab.active {
+    background: white;
+    box-shadow: var(--card-shadow);
+}
