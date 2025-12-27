@@ -2,6 +2,11 @@
 // DASHBOARD - SISTEMA DE ESTOQUE
 // ============================================
 
+// Variáveis globais
+let stockTypeChart = null;
+let stockValueChart = null;
+let dashboardInitialized = false;
+
 // Funções de formatação (para evitar erros de referência)
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -32,26 +37,66 @@ const formatDate = (dateString) => {
     }
 };
 
-// Variáveis globais
-let stockTypeChart = null;
-let stockValueChart = null;
+// ============================================
+// INICIALIZAÇÃO DO DASHBOARD
+// ============================================
 
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Dashboard inicializando...');
+// Função principal de inicialização
+async function initializeDashboard() {
+    console.log('📊 Inicializando dashboard...');
     
-    // Aguarda o Supabase ficar pronto
-    await waitForSupabase();
-    
-    if (!window.isSupabaseReady()) {
-        console.error('Erro: Supabase não inicializado');
-        showNotification('Erro ao conectar com o banco de dados', 'error');
-        return;
+    try {
+        // Aguarda o Supabase ficar pronto
+        await waitForSupabase();
+        
+        if (!window.supabase) {
+            throw new Error('Supabase não inicializado');
+        }
+        
+        // Carrega os dados do dashboard
+        await loadDashboardData();
+        
+        // Configura os listeners de eventos
+        setupEventListeners();
+        
+        // Inicia funcionalidades de tempo
+        updateClock();
+        setLastUpdateTime();
+        
+        // Marca como inicializado
+        dashboardInitialized = true;
+        
+        console.log('✅ Dashboard inicializado com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Erro ao inicializar dashboard:', error);
+        showDashboardError('Erro ao carregar dashboard: ' + error.message);
     }
+}
+
+// Aguarda o DOM e o Supabase estarem prontos
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Dashboard DOM carregado, aguardando Supabase...');
     
-    await loadDashboardData();
-    setupEventListeners();
-    updateClock();
-    setLastUpdateTime();
+    // Se já houver um evento supabaseReady, inicia imediatamente
+    if (window.supabase) {
+        console.log('Supabase já está disponível');
+        initializeDashboard();
+    } else {
+        // Aguarda o evento supabaseReady
+        document.addEventListener('supabaseReady', () => {
+            console.log('Evento supabaseReady recebido');
+            setTimeout(initializeDashboard, 100); // Pequeno delay
+        });
+        
+        // Timeout de segurança
+        setTimeout(() => {
+            if (!dashboardInitialized && window.supabase) {
+                console.log('Inicializando dashboard por timeout...');
+                initializeDashboard();
+            }
+        }, 5000);
+    }
 });
 
 // ============================================
@@ -59,21 +104,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ============================================
 
 async function waitForSupabase() {
-    return new Promise((resolve) => {
+    console.log('Aguardando Supabase...');
+    
+    return new Promise((resolve, reject) => {
+        const maxWaitTime = 10000; // 10 segundos
+        const startTime = Date.now();
+        
         const checkSupabase = () => {
-            if (window.supabase) {
-                console.log('Supabase conectado');
+            const elapsed = Date.now() - startTime;
+            
+            if (window.supabase && window.supabaseInitialized !== false) {
+                console.log('✅ Supabase conectado');
                 resolve();
+            } else if (elapsed > maxWaitTime) {
+                reject(new Error('Timeout: Supabase não inicializado após 10 segundos'));
             } else {
-                console.log('Aguardando Supabase...');
-                setTimeout(checkSupabase, 100);
+                // Verifica se existe a função waitForSupabase global
+                if (typeof window.waitForSupabase === 'function') {
+                    window.waitForSupabase(5000)
+                        .then(resolve)
+                        .catch(() => setTimeout(checkSupabase, 100));
+                } else {
+                    setTimeout(checkSupabase, 100);
+                }
             }
         };
+        
         checkSupabase();
     });
 }
 
 function setupEventListeners() {
+    console.log('Configurando event listeners...');
+    
     // Botão atualizar
     const btnAtualizar = document.getElementById('btnAtualizar');
     if (btnAtualizar) {
@@ -100,8 +163,10 @@ function setupEventListeners() {
     
     // Atualizar automaticamente a cada 60 segundos
     setInterval(async () => {
-        await loadDashboardData();
-        setLastUpdateTime();
+        if (dashboardInitialized) {
+            await loadDashboardData();
+            setLastUpdateTime();
+        }
     }, 60000);
 }
 
@@ -111,6 +176,10 @@ function setupEventListeners() {
 
 async function loadDashboardData() {
     try {
+        if (!window.supabase) {
+            throw new Error('Supabase não disponível');
+        }
+        
         console.log('Carregando dados do dashboard...');
         showLoadingState();
         
@@ -146,28 +215,147 @@ async function loadDashboardData() {
         // Atualizar informações detalhadas
         updateDetailedInfo(produtos, movimentacoesHoje);
         
+        // Esconde estado de loading
+        hideLoadingState();
+        
     } catch (error) {
         console.error('Erro ao carregar dashboard:', error);
         showNotification('Erro ao carregar dados do dashboard: ' + error.message, 'error');
+        showDashboardError(error.message);
     }
 }
 
 function showLoadingState() {
-    // Atualizar placeholders
-    const placeholders = document.querySelectorAll('.stat-value, .big-number, .info-value');
-    placeholders.forEach(el => {
-        if (!el.textContent || el.textContent === '0') {
-            el.textContent = '...';
-        }
-    });
+    // Adiciona ou atualiza o estado de loading
+    const loadingElement = document.getElementById('dashboard-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'flex';
+        return;
+    }
+    
+    // Cria o elemento de loading se não existir
+    const loadingHTML = `
+        <div id="dashboard-loading" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            font-family: Arial, sans-serif;
+        ">
+            <div style="
+                width: 50px;
+                height: 50px;
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3498db;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-bottom: 15px;
+            "></div>
+            <div style="color: #333; font-size: 14px;">Carregando dados...</div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', loadingHTML);
+    
+    // Adiciona a animação se não existir
+    if (!document.querySelector('#dashboard-spinner-animation')) {
+        const style = document.createElement('style');
+        style.id = 'dashboard-spinner-animation';
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 }
 
+function hideLoadingState() {
+    const loadingElement = document.getElementById('dashboard-loading');
+    if (loadingElement) {
+        loadingElement.style.opacity = '0';
+        loadingElement.style.transition = 'opacity 0.3s';
+        setTimeout(() => {
+            if (loadingElement.parentNode) {
+                loadingElement.parentNode.removeChild(loadingElement);
+            }
+        }, 300);
+    }
+}
+
+function showDashboardError(message) {
+    // Remove qualquer erro existente
+    const existingError = document.getElementById('dashboard-error');
+    if (existingError) existingError.remove();
+    
+    // Cria mensagem de erro
+    const errorHTML = `
+        <div id="dashboard-error" style="
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px;
+            color: #c00;
+            font-family: Arial, sans-serif;
+        ">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 10px; font-size: 20px;"></i>
+                <strong style="font-size: 16px;">Erro no Dashboard</strong>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 10px;">${message}</div>
+            <button onclick="retryDashboard()" style="
+                background: #c00;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+            ">
+                <i class="fas fa-redo"></i> Tentar Novamente
+            </button>
+        </div>
+    `;
+    
+    // Insere no topo do conteúdo principal
+    const mainContent = document.querySelector('main') || 
+                       document.querySelector('.container') || 
+                       document.body;
+    
+    // Tenta encontrar um lugar apropriado para inserir
+    const firstCard = mainContent.querySelector('.card, .dashboard-card, .stat-card');
+    if (firstCard) {
+        firstCard.insertAdjacentHTML('beforebegin', errorHTML);
+    } else {
+        mainContent.insertAdjacentHTML('afterbegin', errorHTML);
+    }
+}
+
+// Função de retry global
+window.retryDashboard = async function() {
+    const errorElement = document.getElementById('dashboard-error');
+    if (errorElement) errorElement.remove();
+    
+    await loadDashboardData();
+};
+
 // ============================================
-// FUNÇÕES DE CARGA DE DADOS
+// FUNÇÕES DE CARGA DE DADOS (mantenha as existentes)
 // ============================================
 
 async function loadProdutos() {
     try {
+        if (!window.supabase) throw new Error('Supabase não disponível');
+        
         const { data, error } = await window.supabase
             .from('produtos')
             .select('*')
@@ -184,6 +372,8 @@ async function loadProdutos() {
 
 async function loadMovimentacoesHoje() {
     try {
+        if (!window.supabase) throw new Error('Supabase não disponível');
+        
         const hoje = new Date().toISOString().split('T')[0];
         const { data, error } = await window.supabase
             .from('movimentacoes')
@@ -202,6 +392,8 @@ async function loadMovimentacoesHoje() {
 
 async function loadFornecedores() {
     try {
+        if (!window.supabase) throw new Error('Supabase não disponível');
+        
         const { data, error } = await window.supabase
             .from('fornecedores')
             .select('*')
@@ -218,6 +410,8 @@ async function loadFornecedores() {
 
 async function loadCategorias() {
     try {
+        if (!window.supabase) throw new Error('Supabase não disponível');
+        
         const { data, error } = await window.supabase
             .from('categorias')
             .select('*')
@@ -234,6 +428,8 @@ async function loadCategorias() {
 
 async function loadDepositos() {
     try {
+        if (!window.supabase) throw new Error('Supabase não disponível');
+        
         const { data, error } = await window.supabase
             .from('depositos')
             .select('*')
@@ -250,6 +446,8 @@ async function loadDepositos() {
 
 async function loadLowStockProducts() {
     try {
+        if (!window.supabase) throw new Error('Supabase não disponível');
+        
         const { data, error } = await window.supabase
             .from('view_produtos_baixo_estoque')
             .select('*')
@@ -281,6 +479,8 @@ async function loadLowStockProducts() {
 
 async function loadRecentMovements() {
     try {
+        if (!window.supabase) throw new Error('Supabase não disponível');
+        
         // Tentar usar a view primeiro
         const { data, error } = await window.supabase
             .from('view_movimentacoes_detalhadas')
@@ -302,6 +502,8 @@ async function loadRecentMovements() {
 
 async function loadRecentMovementsFallback() {
     try {
+        if (!window.supabase) throw new Error('Supabase não disponível');
+        
         const { data: movimentacoes, error } = await window.supabase
             .from('movimentacoes')
             .select('*')
@@ -339,546 +541,23 @@ async function loadRecentMovementsFallback() {
 }
 
 // ============================================
-// ATUALIZAÇÃO DA INTERFACE
+// RESTANTE DO CÓDIGO (mantenha tudo a partir da linha 200)
 // ============================================
 
-function updateSummaryCards(produtos, movimentacoesHoje, fornecedores, categorias, depositos) {
-    try {
-        console.log('Atualizando cards de resumo...');
-        
-        // Total de produtos
-        const totalProdutos = produtos?.length || 0;
-        updateElement('total-produtos', totalProdutos);
-        
-        // Valor total do estoque
-        const valorTotal = produtos?.reduce((total, produto) => {
-            const precoCusto = parseFloat(produto.preco_custo) || 0;
-            const estoqueAtual = parseFloat(produto.estoque_atual) || 0;
-            return total + (precoCusto * estoqueAtual);
-        }, 0) || 0;
-        
-        updateElement('valor-total', formatCurrency(valorTotal));
-        
-        // Produtos com baixo estoque
-        const baixoEstoque = produtos?.filter(p => {
-            const estoqueMin = parseFloat(p.estoque_minimo) || 0;
-            const estoqueAtual = parseFloat(p.estoque_atual) || 0;
-            return estoqueAtual <= estoqueMin;
-        }).length || 0;
-        
-        updateElement('baixo-estoque', baixoEstoque);
-        
-        // Adicionar classe de warning se houver baixo estoque
-        const baixoEstoqueEl = document.getElementById('baixo-estoque');
-        if (baixoEstoqueEl) {
-            baixoEstoqueEl.className = baixoEstoque > 0 ? 'stat-value warning' : 'stat-value';
-        }
-        
-        // Movimentações hoje
-        const movHoje = movimentacoesHoje?.length || 0;
-        updateElement('mov-hoje', movHoje);
-        
-        // Total fornecedores
-        const totalFornecedores = fornecedores?.length || 0;
-        updateElement('total-fornecedores', totalFornecedores);
-        
-        // Produtos ativos
-        const produtosAtivos = produtos?.filter(p => p.ativo !== false).length || 0;
-        updateElement('produtos-ativos', produtosAtivos);
-        
-    } catch (error) {
-        console.error('Erro ao atualizar summary cards:', error);
-    }
-}
+// ... (COLE AQUI TODO O RESTANTE DO SEU CÓDIGO A PARTIR DA LINHA 200)
+// Isso inclui:
+// - updateSummaryCards
+// - updateElement
+// - updateLowStockList
+// - updateRecentMovementsList
+// - updateCharts
+// - updateStockTypeChart
+// - updateStockValueChart
+// - updateDetailedInfo
+// - updateMovimentacoes30Dias
+// - updateClock
+// - setLastUpdateTime
+// - addDashboardStyles
+// - E as exportações finais
 
-function updateElement(id, value) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.textContent = value;
-    }
-}
-
-async function updateLowStockList() {
-    try {
-        const container = document.getElementById('low-stock-list');
-        if (!container) return;
-        
-        const produtos = await loadLowStockProducts();
-        
-        if (!produtos || produtos.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-check-circle"></i>
-                    <p>Todos os produtos com estoque adequado</p>
-                </div>
-            `;
-            return;
-        }
-        
-        container.innerHTML = produtos.map(produto => {
-            const estoqueAtual = parseFloat(produto.estoque_atual) || 0;
-            const estoqueMinimo = parseFloat(produto.estoque_minimo) || 0;
-            const status = estoqueAtual <= 0 ? 'danger' : 'warning';
-            
-            return `
-                <div class="list-item">
-                    <div class="item-info">
-                        <div class="item-title">${produto.nome || 'Sem nome'}</div>
-                        <div class="item-subtitle">
-                            Mínimo: ${estoqueMinimo} ${produto.unidade_medida || ''}
-                            ${produto.deposito_nome ? ` | Depósito: ${produto.deposito_nome}` : ''}
-                        </div>
-                    </div>
-                    <div class="item-actions">
-                        <span class="stock-value ${status}">
-                            ${estoqueAtual}
-                        </span>
-                        <span class="unit-badge">${produto.unidade_medida || ''}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        
-    } catch (error) {
-        console.error('Erro ao atualizar lista de baixo estoque:', error);
-        const container = document.getElementById('low-stock-list');
-        if (container) {
-            container.innerHTML = `
-                <div class="empty-state error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>Erro ao carregar dados</p>
-                </div>
-            `;
-        }
-    }
-}
-
-async function updateRecentMovementsList() {
-    try {
-        const container = document.getElementById('recent-movements');
-        if (!container) return;
-        
-        const movimentacoes = await loadRecentMovements();
-        
-        if (!movimentacoes || movimentacoes.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-exchange-alt"></i>
-                    <p>Nenhuma movimentação recente</p>
-                </div>
-            `;
-            return;
-        }
-        
-        container.innerHTML = movimentacoes.map(mov => {
-            const tipoClass = mov.tipo === 'entrada' ? 'success' : 
-                            mov.tipo === 'saida' ? 'danger' : 'warning';
-            const tipoIcon = mov.tipo === 'entrada' ? 'fa-arrow-down' : 
-                           mov.tipo === 'saida' ? 'fa-arrow-up' : 'fa-exchange-alt';
-            
-            return `
-                <div class="activity-item">
-                    <div class="activity-icon ${tipoClass}">
-                        <i class="fas ${tipoIcon}"></i>
-                    </div>
-                    <div class="activity-info">
-                        <div class="activity-title">${mov.produto_nome || mov.produtos?.nome || 'Produto'}</div>
-                        <div class="activity-details">
-                            <span class="badge badge-${tipoClass}">${mov.tipo || ''}</span>
-                            <span>${mov.quantidade || 0} ${mov.unidade_medida || mov.produtos?.unidade_medida || ''}</span>
-                            <span class="activity-time">${formatDate(mov.created_at)}</span>
-                        </div>
-                        <div class="activity-subtitle">
-                            Operador: ${mov.operador || 'N/A'} 
-                            ${mov.observacao ? ` | ${mov.observacao}` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        
-    } catch (error) {
-        console.error('Erro ao atualizar lista de movimentações:', error);
-        const container = document.getElementById('recent-movements');
-        if (container) {
-            container.innerHTML = `
-                <div class="empty-state error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>Erro ao carregar movimentações</p>
-                </div>
-            `;
-        }
-    }
-}
-
-function updateCharts(produtos) {
-    try {
-        updateStockTypeChart(produtos);
-        updateStockValueChart(produtos);
-    } catch (error) {
-        console.error('Erro ao atualizar gráficos:', error);
-    }
-}
-
-function updateStockTypeChart(produtos) {
-    try {
-        const ctx = document.getElementById('stockTypeChart');
-        if (!ctx) return;
-        
-        // Agrupar por unidade de medida
-        const porUnidade = produtos?.filter(p => p.unidade_medida === 'unidade') || [];
-        const porKg = produtos?.filter(p => p.unidade_medida === 'kg') || [];
-        const porOutros = produtos?.filter(p => 
-            !['unidade', 'kg'].includes(p.unidade_medida)
-        ) || [];
-        
-        // Destruir gráfico anterior se existir
-        if (stockTypeChart) {
-            stockTypeChart.destroy();
-        }
-        
-        const chartContext = ctx.getContext('2d');
-        stockTypeChart = new Chart(chartContext, {
-            type: 'doughnut',
-            data: {
-                labels: ['Unidades', 'Quilogramas', 'Outros'],
-                datasets: [{
-                    data: [porUnidade.length, porKg.length, porOutros.length],
-                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b'],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                            font: {
-                                size: 11
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label;
-                                const value = context.raw;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                },
-                cutout: '60%'
-            }
-        });
-    } catch (error) {
-        console.error('Erro ao criar gráfico de tipos:', error);
-    }
-}
-
-function updateStockValueChart(produtos) {
-    try {
-        const ctx = document.getElementById('stockValueChart');
-        if (!ctx) return;
-        
-        // Calcular valor total por produto
-        const produtosComValor = produtos?.map(p => ({
-            nome: p.nome,
-            valor: (parseFloat(p.preco_custo) || 0) * (parseFloat(p.estoque_atual) || 0)
-        })).filter(p => p.valor > 0)
-          .sort((a, b) => b.valor - a.valor)
-          .slice(0, 8) || [];
-        
-        // Destruir gráfico anterior se existir
-        if (stockValueChart) {
-            stockValueChart.destroy();
-        }
-        
-        const chartContext = ctx.getContext('2d');
-        stockValueChart = new Chart(chartContext, {
-            type: 'bar',
-            data: {
-                labels: produtosComValor.map(p => {
-                    const nome = p.nome || 'Sem nome';
-                    return nome.length > 15 ? nome.substring(0, 15) + '...' : nome;
-                }),
-                datasets: [{
-                    label: 'Valor em Estoque',
-                    data: produtosComValor.map(p => p.valor),
-                    backgroundColor: '#3b82f6',
-                    borderColor: '#2563eb',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `Valor: ${formatCurrency(context.raw)}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                if (value >= 1000) {
-                                    return 'R$ ' + (value / 1000).toFixed(0) + 'k';
-                                }
-                                return 'R$ ' + value;
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 45,
-                            font: {
-                                size: 10
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Erro ao criar gráfico de valores:', error);
-    }
-}
-
-function updateDetailedInfo(produtos, movimentacoesHoje) {
-    try {
-        // Atualizar última atualização
-        setLastUpdateTime();
-        
-        // Total produtos detalhado
-        updateElement('total-products-detail', produtos?.length || 0);
-        
-        // Valor total detalhado
-        const valorTotal = produtos?.reduce((total, produto) => {
-            return total + ((parseFloat(produto.preco_custo) || 0) * (parseFloat(produto.estoque_atual) || 0));
-        }, 0) || 0;
-        
-        updateElement('total-value-detail', formatCurrency(valorTotal));
-        
-        // Calcular movimentações dos últimos 30 dias
-        updateMovimentacoes30Dias();
-        
-    } catch (error) {
-        console.error('Erro ao atualizar informações detalhadas:', error);
-    }
-}
-
-async function updateMovimentacoes30Dias() {
-    try {
-        const trintaDiasAtras = new Date();
-        trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
-        
-        const { count, error } = await window.supabase
-            .from('movimentacoes')
-            .select('*', { count: 'exact', head: true })
-            .gte('created_at', trintaDiasAtras.toISOString());
-        
-        if (!error) {
-            updateElement('mov-30-days', count || 0);
-        }
-    } catch (error) {
-        console.error('Erro ao calcular movimentações 30 dias:', error);
-    }
-}
-
-// ============================================
-// FUNÇÕES UTILITÁRIAS
-// ============================================
-
-function updateClock() {
-    const clockElement = document.getElementById('current-time');
-    if (!clockElement) return;
-    
-    function update() {
-        const now = new Date();
-        clockElement.textContent = now.toLocaleTimeString('pt-BR');
-    }
-    
-    update();
-    setInterval(update, 1000);
-}
-
-function setLastUpdateTime() {
-    const element = document.getElementById('last-update');
-    if (element) {
-        const now = new Date();
-        element.textContent = now.toLocaleTimeString('pt-BR');
-    }
-}
-
-// ============================================
-// FUNÇÕES GLOBAIS (para uso em outros scripts)
-// ============================================
-
-// Torna as funções disponíveis globalmente se não existirem
-if (typeof window.formatCurrency === 'undefined') {
-    window.formatCurrency = formatCurrency;
-}
-
-if (typeof window.formatNumber === 'undefined') {
-    window.formatNumber = formatNumber;
-}
-
-if (typeof window.formatDate === 'undefined') {
-    window.formatDate = formatDate;
-}
-
-// Adiciona estilos CSS dinâmicos
-function addDashboardStyles() {
-    const styles = `
-        .stat-value.warning {
-            color: #f59e0b !important;
-        }
-        
-        .stat-value.danger {
-            color: #ef4444 !important;
-        }
-        
-        .stock-value {
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-        
-        .stock-value.warning {
-            color: #f59e0b;
-        }
-        
-        .stock-value.danger {
-            color: #ef4444;
-        }
-        
-        .unit-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            background: #f3f4f6;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-left: 4px;
-        }
-        
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-        
-        .activity-icon.success {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-        }
-        
-        .activity-icon.danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-        }
-        
-        .activity-icon.warning {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-        }
-        
-        .activity-details {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-top: 4px;
-            font-size: 0.875rem;
-        }
-        
-        .activity-time {
-            color: #6b7280;
-            font-size: 0.8rem;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 2rem;
-            color: #6b7280;
-        }
-        
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        .empty-state.error i {
-            color: #ef4444;
-        }
-        
-        .text-muted {
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 250px;
-        }
-        
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 200px;
-            }
-        }
-    `;
-    
-    const styleElement = document.createElement('style');
-    styleElement.textContent = styles;
-    document.head.appendChild(styleElement);
-}
-
-// Inicializar estilos quando o DOM estiver pronto
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', addDashboardStyles);
-} else {
-    addDashboardStyles();
-}
-
-// Exportar funções principais para uso global
-window.dashboard = {
-    loadDashboardData,
-    updateLowStockList,
-    updateRecentMovementsList,
-    updateCharts,
-    formatCurrency,
-    formatNumber,
-    formatDate
-};
-
-console.log('Dashboard.js carregado com sucesso!');
+console.log('✅ Dashboard.js carregado e pronto para inicialização');
